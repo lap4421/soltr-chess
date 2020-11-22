@@ -24,6 +24,18 @@ import java.util.Objects;
 
 import static java.awt.Color.BLUE;
 
+/**
+ * OVERALL THINGS LEFT TO DO --> #1 is by far the most important
+ * 1) Fix bishop and queen logic in SoltrChessModel.isValid() so that they can't jump over pieces
+ * 2) Minor aesthetic fixes: show gridlines on gridPane board
+ * 3) Get rid of all debugging System.out.println() statements
+ * 4) Maaaaybe change the illegal move message so it doesn't swear at the user
+ */
+
+
+
+
+
 public class SoltrChessGUI extends Application implements Observer<SoltrChessModel> {
     boolean firstclick = true;
 
@@ -239,6 +251,8 @@ public class SoltrChessGUI extends Application implements Observer<SoltrChessMod
         GridPane newBoard = makeGridPane();
         borderPane.setCenter(newBoard);
         System.out.println("Gridpane done");
+        status = "Moves: " + (int) model.getMoves();
+        borderPane.setBottom(new Text(status));
     }
 
     @Override
