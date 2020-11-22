@@ -1,5 +1,7 @@
 package soltrchess.model;
 
+import soltrchess.gui.SoltrChessGUI;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.LinkedList;
@@ -17,7 +19,7 @@ public class SoltrChessModel {
      */
     private List<Observer<SoltrChessModel>> observers;
 
-    private int moves;
+    private double moves;
     private Piece[][] board;
 
 
@@ -135,7 +137,6 @@ public class SoltrChessModel {
             for (int j = 0; j < 4; j++) {
                 if (getBoard()[i][j] != Piece.EMPTY) {
                     counter++;
-
                 }
             }
         }
@@ -145,16 +146,17 @@ public class SoltrChessModel {
             return true;
         }
     }
+
+
     public void makeMove(int row1, int col1, int row2, int col2, Piece piece){
         setBoard(row1, col1, Piece.EMPTY);
         setBoard(row2, col2, piece);
-
     }
 
 
 
 
-    public int getMoves() {
+    public double getMoves() {
         return moves;
     }
 
@@ -164,7 +166,10 @@ public class SoltrChessModel {
 
     public void setBoard(int row, int col, Piece piece){
         board[row][col] = piece;
+        moves+= 0.5; // doing this because this gets executed twice per move
     }
+
+
     public void boardtoString(){
         for (int i = 0; i < 4; i++){
             StringBuilder line = new StringBuilder();

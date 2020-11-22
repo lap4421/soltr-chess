@@ -1,6 +1,7 @@
 package soltrchess.gui;
 
 import javafx.application.Application;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
@@ -8,10 +9,11 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.stage.FileChooser;
 import soltrchess.model.SoltrChessModel;
 import soltrchess.model.Observer;
 
-import java.awt.*;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -24,7 +26,10 @@ import static java.awt.Color.BLUE;
 public class SoltrChessGUI extends Application implements Observer<SoltrChessModel> {
     boolean firstclick = true;
 
+    FileChooser fileChooser;
+    String status = "Moves: ";
 
+    private String fileName = "";
     private boolean color = false;
     private int firstrow;
     private int firstcol;
@@ -58,6 +63,8 @@ public class SoltrChessGUI extends Application implements Observer<SoltrChessMod
     public SoltrChessGUI() {
         System.out.println("Instantiating GUI");
     }
+
+
 
 
     // don't think this is needed
@@ -132,8 +139,7 @@ public class SoltrChessGUI extends Application implements Observer<SoltrChessMod
                 updateSquare(row, col, button);
             }
             else{
-                System.out.println("You can't fucking do that you absolute buffoonio");
-
+                illegalMove();
             }
         }
         firstclick = !firstclick;
@@ -142,22 +148,26 @@ public class SoltrChessGUI extends Application implements Observer<SoltrChessMod
     }
 
 
+    public void illegalMove() {
+        status = "Moves: " + (int) model.getMoves() + "\tYou can't fucking do that you absolute buffoon";
+        borderPane.setBottom(new Text(status));
+    }
+
+
     @Override
     public void update(SoltrChessModel soltrChessModel) {
         //model.boardtoString();
         model.setBoard(firstrow, firstcol, SoltrChessModel.Piece.EMPTY);
-
-
-
-
+        status = "Moves: " + (int) model.getMoves();
+        if (model.hasWonGame()) {
+            status += "\tYou Won!! Good job";
+        }
+        borderPane.setBottom(new Text(status));
     }
+
+
     public void updaterowcol(int row, int col) {
         model.setBoard(row, col,model.getBoard()[firstrow][firstcol]);
-
-
-
-
-
     }
 
 
@@ -202,6 +212,7 @@ public class SoltrChessGUI extends Application implements Observer<SoltrChessMod
         //String[] args = new String[1];
         //args[0] = "data/game43.txt";
 
+        fileName = args[0];
         model = new SoltrChessModel(args);
         System.out.println("Instantiated model");
         this.model.addObserver(this);
@@ -213,6 +224,7 @@ public class SoltrChessGUI extends Application implements Observer<SoltrChessMod
     @Override
     public void start(Stage stage) throws Exception {
         this.borderPane = new BorderPane();
+        fileChooser = new FileChooser();
 
 
         board = makeGridPane();
@@ -221,7 +233,13 @@ public class SoltrChessGUI extends Application implements Observer<SoltrChessMod
 
 
         borderPane.setCenter(board);
-        borderPane.setTop(new Text("asdfasdf"));
+        borderPane.setTop(new Text("Game File: " + fileName));
+        status += (int) model.getMoves();
+        borderPane.setBottom(new Text(status));
+
+        Insets insets = new Insets(10);
+        BorderPane.setMargin(board, insets);
+        BorderPane.setMargin(borderPane.getTop(), insets);
 
 
         this.scene = new Scene(borderPane);
