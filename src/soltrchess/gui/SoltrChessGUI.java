@@ -214,12 +214,17 @@ public class SoltrChessGUI extends Application implements Observer<SoltrChessMod
                 }
             }
         }
+
         setupfinished = true;
         return gridPane;
 
     }
 
     public void startNewgame(String filename) throws FileNotFoundException {
+        // to fix a weird bug, we need to "click" any dark square --> I choose (0, 0)
+        click(0, 0, (Button) board.getChildren().get(0));
+        fileName = filename;
+        borderPane.setTop(new Text("Game File: " + fileName));
         String[] args = new String[1];
         args[0] = filename;
         model = new SoltrChessModel(args);
@@ -282,11 +287,22 @@ public class SoltrChessGUI extends Application implements Observer<SoltrChessMod
             try {
                 startNewgame(String.valueOf(selectedFile));
             } catch (FileNotFoundException fileNotFoundException) {
-                System.err.println("File was not found");
+                System.err.println("That filename ain't right");
             }
         });
 
-        VBox vBox = new VBox(newGame);
+        Button restart = new Button("Start Over :(");
+        restart.setOnAction(e -> {
+            try {
+                startNewgame(fileName);
+            }
+            catch (FileNotFoundException fileNotFoundException) {
+                System.err.println("That filename ain't right");
+            }
+        });
+
+
+        VBox vBox = new VBox(newGame, restart);
         borderPane.setRight(vBox);
 
 

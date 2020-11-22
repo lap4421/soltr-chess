@@ -95,41 +95,77 @@ public class SoltrChessModel {
         if (piece1.equals(Piece.EMPTY) || piece2.equals(Piece.EMPTY)) {
             return valid;
         }
-        if (row1 == col1 && row2 == col2) {
+
+        // this is supposed to be so that you can't move to the same square, right?
+        if (row1 == row2 && col1 == col2) {
             return valid;
         }
 
-        switch (piece1) {
-            case KING:
-                if (Math.abs(row2 - row1) <= 1 && Math.abs(col2 - col1) <= 1) {
-                    valid = true;
-                }
-            case QUEEN:
-                if (row1 != row2 && col1 == col2 || row1 == row2 && col1 != col2 || Math.abs(row2 - row1) == Math.abs(col2 - col1)) {
-                    valid = true;
-                }
-            case ROOK:
-                if (row1 != row2 && col1 == col2 || row1 == row2 && col1 != col2) {
-                    valid = true;
-                }
-            case BISHOP:
-                if (Math.abs(row2 - row1) == Math.abs(col2 - col1)) {
-                    valid = true;
-                }
-            case KNIGHT:
-                int rowdif = Math.abs(row2 - row1);
-                int coldif = Math.abs(col2 - col1);
-                if (coldif == 2 && rowdif == 1 || coldif == 1 && rowdif == 2) {
-                    valid = true;
-                }
-            case PAWN:
-                if (row2 == (row1 + 1) && Math.abs(col2 - col1) == 1) {
-                    valid = true;
-                }
-
-            default:
-                return valid;
+        if (piece1.equals(Piece.KING)) {
+            System.out.println("Checking for king");
+            if (Math.abs(row2 - row1) <= 1 && Math.abs(col2 - col1) <= 1) {
+                valid = true;
+            }
         }
+        else if (piece1.equals(Piece.QUEEN)) {
+            System.out.println("Checking for queen");
+            if (row1 != row2 && col1 == col2 || row1 == row2 && col1 != col2 || Math.abs(row2 - row1) == Math.abs(col2 - col1)) {
+                // TODO --> need to check the queen for jumping over anybody too
+                valid = true;
+            }
+        }
+        else if (piece1.equals(Piece.ROOK)) {
+            System.out.println("Checking for rook");
+            if (row1 != row2 && col1 == col2 || row1 == row2 && col1 != col2) {
+                // now right here, we need to make sure he isn't jumping over anybody
+                // There might be a more efficient way to do this, but it's 12:25 AM and I am kinda lazy right now
+                // split into horizontal and vertical movement
+                if (col1 == col2 && Math.abs(row2 - row1) > 1) { // vert
+                    for (int i = Math.min(row1, row2)+1; i < Math.max(row1, row2); i++) {
+                        if (!(board[i][col1].equals(Piece.EMPTY))) {
+                            valid = false;
+                            return valid;
+                        }
+                    }
+                }
+                else if (row1 == row2 && Math.abs(col2 - col1) > 1) { // horizontal
+                    for (int j = Math.min(col1, col2) + 1; j < Math.max(col1, col2); j++) {
+                        if (!(board[row1][j].equals(Piece.EMPTY))) {
+                            valid = false;
+                            return valid;
+                        }
+                    }
+                }
+                valid = true; // default state if neither of above two loops returns false
+            }
+        }
+        else if (piece1.equals(Piece.BISHOP)) {
+            System.out.println("Checking for bishop");
+            if (Math.abs(row2 - row1) == Math.abs(col2 - col1)) {
+                // check if the bishop is jumping over anybody
+                // distinguish between "upward" and "downward" diagonal
+                // TODO --> fix the bishop
+                valid = true;
+            }
+        }
+        else if (piece1.equals(Piece.KNIGHT)) {
+            System.out.println("Checking for knight");
+            int rowdif = Math.abs(row2 - row1);
+            int coldif = Math.abs(col2 - col1);
+            if (coldif == 2 && rowdif == 1 || coldif == 1 && rowdif == 2) {
+                valid = true;
+            }
+        }
+        else if (piece1.equals(Piece.PAWN)) {
+            System.out.println("Checking for pawn");
+            if (row2 == (row1 - 1) && Math.abs(col2 - col1) == 1) {
+                valid = true;
+            }
+        }
+        else {
+            System.out.println("Returning default, should be empty");
+        }
+        return valid;
     }
 
     public boolean hasWonGame() {
