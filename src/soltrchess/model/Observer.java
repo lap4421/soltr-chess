@@ -6,12 +6,13 @@ package soltrchess.model;
  *
  * @param <Subject> the type of object an implementor of this interface
  *                is observing
- * @param <ClientData> optional data the model can send to the observer
- *                    (null if nothing)
+
  *
  * @author RIT CS
  */
-public interface Observer<Subject, ClientData> {
+
+// I am not using ClientData from here for now
+public interface Observer<Subject> {
     /**
      * The observed subject calls this method on each observer that has
      * previously registered with it. This version of the design pattern
@@ -27,10 +28,9 @@ public interface Observer<Subject, ClientData> {
      *
      * @param subject the object that wishes to inform this object
      *                about something that has happened.
-     * @param data optional data the server.model can send to the observer
      *
      * @see <a href="https://sourcemaking.com/design_patterns/observer">the
      * Observer design pattern</a>
      */
-    void update(Subject subject, ClientData data);
+    void update(Subject subject);
 }

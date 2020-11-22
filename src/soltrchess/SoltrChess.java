@@ -58,6 +58,7 @@ public class SoltrChess {
         //
         switch( mode ) {
             case gui:
+                System.out.println("Filename is: " + fileName);
                 Application.launch( SoltrChessGUI.class, fileName );
                 break;
             case ptui:
