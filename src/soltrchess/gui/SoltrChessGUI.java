@@ -77,6 +77,18 @@ public class SoltrChessGUI extends Application implements Observer<SoltrChessMod
         }
     }
 
+    /**
+     * 11/21/2020 22:31 -- there is some bug going on here that I haven't been able to figure out
+     * If you do a new game WITHOUT making a single move, then everything is fine
+     * But, if you do a new game after making any moves, then all EMPTY DARK squares are colored light in the new
+     * game board
+     * For some reason, this bug doesn't happen if you capture FROM a dark square TO a light square on any board...
+     * If that is your most recently played move, then when you do new game everything is fine and dandy
+     * @param row
+     * @param col
+     * @param button
+     */
+
     public void updateSquare(int row, int col, Button button) {
         SoltrChessModel.Piece piece = model.getBoard()[row][col];
         System.out.println(piece);
