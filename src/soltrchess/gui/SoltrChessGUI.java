@@ -13,6 +13,7 @@ import javafx.stage.FileChooser;
 import soltrchess.model.SoltrChessModel;
 import soltrchess.model.Observer;
 
+import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -79,6 +80,9 @@ public class SoltrChessGUI extends Application implements Observer<SoltrChessMod
     public void updateSquare(int row, int col, Button button) {
         SoltrChessModel.Piece piece = model.getBoard()[row][col];
         System.out.println(piece);
+        System.out.println("Color: " + color);
+        System.out.println("Setup finished: " + setupfinished);
+        System.out.println("Color Array stuff: " + firstrow + ", " + firstcol + ", " + ColorArray[firstrow][firstcol]);
         if (piece.equals(SoltrChessModel.Piece.PAWN)) {
             button.setGraphic(new ImageView(pawn));
         } else if (piece.equals(SoltrChessModel.Piece.ROOK)) {
@@ -125,6 +129,7 @@ public class SoltrChessGUI extends Application implements Observer<SoltrChessMod
             }
         }
     }
+
     public void click(int row, int col, Button button){
         if (firstclick) {
             firstrow = row;
@@ -174,13 +179,14 @@ public class SoltrChessGUI extends Application implements Observer<SoltrChessMod
 
     // initializes board
     private GridPane makeGridPane() {
-        ColorArray = new Boolean[4][4];
+        //ColorArray = new Boolean[4][4];
         GridPane gridPane = new GridPane();
         for (int row = 0; row < DIM; ++row) {
             for (int col = 0; col < DIM; ++col) {
                 Square square;
                 square = new Square(color);
-                ColorArray[row][col] = color;
+                //ColorArray[row][col] = color;
+                //System.out.println("Added color: " + color + " to ColorArray[" + row + "][" + col + "]");
 
 
                 updateSquare(row, col, square);
@@ -201,6 +207,22 @@ public class SoltrChessGUI extends Application implements Observer<SoltrChessMod
 
     }
 
+    public void startNewgame(String filename) throws FileNotFoundException {
+        String[] args = new String[1];
+        args[0] = filename;
+        model = new SoltrChessModel(args);
+        System.out.println("Changed model to new game");
+        this.model.addObserver(this);
+        System.out.println("Added observer to model again");
+        System.out.println("About to re-make the gridpane...");
+        System.out.println("Using file: " + filename);
+        color = false;
+        setupfinished = false;
+        GridPane newBoard = makeGridPane();
+        borderPane.setCenter(newBoard);
+        System.out.println("Gridpane done");
+    }
+
     @Override
     public void init() throws FileNotFoundException {
         params = getParameters();
@@ -211,6 +233,20 @@ public class SoltrChessGUI extends Application implements Observer<SoltrChessMod
 
         //String[] args = new String[1];
         //args[0] = "data/game43.txt";
+
+        /**
+         * Need to generate the ColorArray only once, so doing it here instead of the GridPane maker
+         */
+        ColorArray = new Boolean[4][4];
+        for (int i = 0; i < DIM; i++) {
+            for (int j = 0; j < DIM; j++) {
+                ColorArray[i][j] = color;
+                if (j != DIM - 1) {
+                    color = !color;
+                }
+            }
+        }
+
 
         fileName = args[0];
         model = new SoltrChessModel(args);
@@ -225,9 +261,33 @@ public class SoltrChessGUI extends Application implements Observer<SoltrChessMod
     public void start(Stage stage) throws Exception {
         this.borderPane = new BorderPane();
         fileChooser = new FileChooser();
+        fileChooser.setInitialDirectory(new File("data"));
+        Button newGame = new Button("New Game");
+        newGame.setOnAction(e -> {
+            File selectedFile = fileChooser.showOpenDialog(stage);
+            System.out.println("Selecting new game...");
+            try {
+                startNewgame(String.valueOf(selectedFile));
+            } catch (FileNotFoundException fileNotFoundException) {
+                System.err.println("File was not found");
+            }
+        });
+
+        VBox vBox = new VBox(newGame);
+        borderPane.setRight(vBox);
 
 
+        // This is where we actually set up the board
+        System.out.println("Setting up the board now...");
         board = makeGridPane();
+        System.out.println("Board setup complete");
+        //System.out.println("ColorArray contents");
+        //for (int i = 0; i < DIM; i++) {
+        //    for (int j = 0; j < DIM; j++) {
+        //        System.out.println(ColorArray[i][j]);
+        //    }
+        //}
+
         board.getColumnConstraints().add(new ColumnConstraints(120));
         board.getRowConstraints().add(new RowConstraints(120));
 
@@ -244,7 +304,7 @@ public class SoltrChessGUI extends Application implements Observer<SoltrChessMod
 
         this.scene = new Scene(borderPane);
         stage.setScene(scene);
-        stage.setTitle("Solitaire Chess Lev and Lizzy");
+        stage.setTitle("Solitaire Chess Lev & Lizzy");
 
 
         stage.show();

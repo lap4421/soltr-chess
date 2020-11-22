@@ -60,7 +60,7 @@ public class SoltrChessModel {
                 } else if (line[j].equals("-")) {
                     newline[j] = Piece.EMPTY;
                 } else {
-                    // TODO --> what do we have to do here??
+                    // TODO --> what do we have to do here?? This is for bad config file
                 }
 
 
@@ -77,6 +77,7 @@ public class SoltrChessModel {
      */
     public void addObserver(Observer<SoltrChessModel> observer) {
         this.observers.add(observer);
+        System.out.println("The number of observers is: " + this.observers.size());
     }
 
     /**
