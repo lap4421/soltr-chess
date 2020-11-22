@@ -218,6 +218,7 @@ public class SoltrChessGUI extends Application implements Observer<SoltrChessMod
         System.out.println("Using file: " + filename);
         color = false;
         setupfinished = false;
+        firstclick = true;
         GridPane newBoard = makeGridPane();
         borderPane.setCenter(newBoard);
         System.out.println("Gridpane done");
