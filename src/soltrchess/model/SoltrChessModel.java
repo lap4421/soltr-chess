@@ -1,19 +1,19 @@
 package soltrchess.model;
 
+import soltrchess.SoltrChess;
+import soltrchess.backtracking.Configuration;
 import soltrchess.gui.SoltrChessGUI;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 /**
  * I am getting rid of data for now
  */
 
 
-public class SoltrChessModel {
+public class SoltrChessModel implements Configuration {
     /**
      * the observers of this model
      */
@@ -88,6 +88,96 @@ public class SoltrChessModel {
             obs.update(this);
         }
     }
+
+
+    /**
+     * This section is for backtracking and solving
+     */
+    @Override
+    public Collection<Configuration> getSuccessors() {
+        Collection<Configuration> successors = new ArrayList<Configuration>();
+        // iterate through each square
+        for (int row = 0; row < 4; row++) {
+            for (int col = 0; col < 4; col++) {
+                if (board[row][col].equals(Piece.EMPTY)) {
+                    // if that square is empty, then skip it
+                    continue;
+                }
+                else { // we found a piece
+                    // OK, this isn't the most efficient way to do this, but should work well enough
+                    // when you find a piece, check the built in isValid(...params...) for every other square on the board
+                    // i.e. it will have to operate 15 times per piece on the board
+                    // probably adds a few orders of magnitude to execution time, but hopefully that is negligible on
+                    // such a small board
+                    for (int i = 0; i < 4; i++) {
+                        for (int j = 0; j < 4; j++) {
+                            if (i == row && j == col) {
+                                // do nothing --> piece can never move to its own place
+                                continue;
+                            }
+                            else if (isValid(row, col, i, j, board[row][col], board[i][j])) {
+                                // now we have a valid move, and need to create a new successor for it
+                                SoltrChessModel successor = new SoltrChessModel(this);
+                                successor.makeMove(row, col, i, j, board[row][col]);
+                                // TODO --> helpful to have a sanity check to make sure its fully copied w/ new refs
+                                // and not just reference copied so change to one will change the other; i dont trust you java
+                                // add successor to list
+                                successors.add(successor);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return successors;
+    }
+
+    @Override
+    public boolean isGoal() {
+        return this.hasWonGame();
+    }
+
+
+    // This can be as involved as we want -- for pruning
+    // mind that this overloads the other isValid() function in this class, but that is OK since they have diff params
+    @Override
+    public boolean isValid() {
+        // easy thing to check is are there any available captures --> if no captures available, config invalid
+        // should be able to get this info from the getSuccessors() function
+        if (getSuccessors().size() == 0) {
+            return false;
+        }
+        else {
+            return true;
+        }
+        // TODO? --> hopefully this is good enough for pruning and nothing else has to be done
+    }
+
+
+    // copy constructor
+    public SoltrChessModel(SoltrChessModel copy) {
+        this.board = new Piece[4][4];
+        for (int row = 0; row < 4; row++) {
+            for (int col = 0; col < 4; col++) {
+                this.board[row][col] = copy.board[row][col];
+            }
+        }
+    }
+
+
+
+
+
+    /**
+     *
+     * @param row1
+     * @param col1
+     * @param row2
+     * @param col2
+     * @param piece1
+     * @param piece2
+     * @return
+     */
 
 
     public boolean isValid(int row1, int col1, int row2, int col2, Piece piece1, Piece piece2) {
