@@ -1,5 +1,6 @@
 package soltrchess.ptui;
 
+import soltrchess.backtracking.Backtracker;
 import soltrchess.model.Observer;
 import soltrchess.model.SoltrChessModel;
 
@@ -45,6 +46,12 @@ public class SoltrChessPTUI implements Observer<SoltrChessModel> {
      * The main command loop.
      */
     public void run() throws FileNotFoundException {
+        System.out.println("Starting config: ");
+        update(board);
+        System.out.println("Trying to backtrack now...");
+        Backtracker bt = new Backtracker();
+        bt.solve(board);
+        System.out.println("Backtracking finished");
         update(board);
         while (true) {
             System.out.print("[move, new, restart, quit]: "); // TODO --> add hint, solve
@@ -81,13 +88,11 @@ public class SoltrChessPTUI implements Observer<SoltrChessModel> {
                 System.out.println("New Game " + filename);
                 initializeView(filename);
                 update(board);
-                // TODO --> nothing left here, but make sure the toString() method is implemented in SoltrChessModel
                 continue;
             }
             else if (s.equals("restart")) {
                 initializeView(currentFileName);
                 update(board);
-                // TODO --> nothing left here, but make sure the toString() method is implemented in SoltrChessModel
                 continue;
             }
             else if (s.equals("quit")) {

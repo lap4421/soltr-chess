@@ -142,12 +142,22 @@ public class SoltrChessModel implements Configuration {
     // mind that this overloads the other isValid() function in this class, but that is OK since they have diff params
     @Override
     public boolean isValid() {
+        // FIRST CHECK IF IS GOAL, then automatically valid
+        if (this.isGoal()) {
+            return true;
+        }
         // easy thing to check is are there any available captures --> if no captures available, config invalid
         // should be able to get this info from the getSuccessors() function
+        System.out.println("================CHECKING VALIDITY OF=================");
+        System.out.print(this);
         if (getSuccessors().size() == 0) {
+            System.out.println("Returned false");
+            System.out.println("=====================================================\n");
             return false;
         }
         else {
+            System.out.println("Returned true");
+            System.out.println("=====================================================\n");
             return true;
         }
         // TODO? --> hopefully this is good enough for pruning and nothing else has to be done
@@ -192,20 +202,17 @@ public class SoltrChessModel implements Configuration {
         }
 
         if (piece1.equals(Piece.KING)) {
-            System.out.println("Checking for king");
             if (Math.abs(row2 - row1) <= 1 && Math.abs(col2 - col1) <= 1) {
                 valid = true;
             }
         }
         else if (piece1.equals(Piece.QUEEN)) {
-            System.out.println("Checking for queen");
             if (row1 != row2 && col1 == col2 || row1 == row2 && col1 != col2 || Math.abs(row2 - row1) == Math.abs(col2 - col1)) {
                 // TODO --> need to check the queen for jumping over anybody too
                 valid = true;
             }
         }
         else if (piece1.equals(Piece.ROOK)) {
-            System.out.println("Checking for rook");
             if (row1 != row2 && col1 == col2 || row1 == row2 && col1 != col2) {
                 // now right here, we need to make sure he isn't jumping over anybody
                 // There might be a more efficient way to do this, but it's 12:25 AM and I am kinda lazy right now
@@ -230,7 +237,6 @@ public class SoltrChessModel implements Configuration {
             }
         }
         else if (piece1.equals(Piece.BISHOP)) {
-            System.out.println("Checking for bishop");
             if (Math.abs(row2 - row1) == Math.abs(col2 - col1)) {
                 // check if the bishop is jumping over anybody
                 // distinguish between "upward" and "downward" diagonal
@@ -239,7 +245,6 @@ public class SoltrChessModel implements Configuration {
             }
         }
         else if (piece1.equals(Piece.KNIGHT)) {
-            System.out.println("Checking for knight");
             int rowdif = Math.abs(row2 - row1);
             int coldif = Math.abs(col2 - col1);
             if (coldif == 2 && rowdif == 1 || coldif == 1 && rowdif == 2) {
@@ -247,7 +252,6 @@ public class SoltrChessModel implements Configuration {
             }
         }
         else if (piece1.equals(Piece.PAWN)) {
-            System.out.println("Checking for pawn");
             if (row2 == (row1 - 1) && Math.abs(col2 - col1) == 1) {
                 valid = true;
             }
@@ -310,7 +314,31 @@ public class SoltrChessModel implements Configuration {
 
     @Override
     public String toString() {
-        String result = "This text is here in place of the actual board herp derp";
+        String result = "";
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                if (board[i][j].equals(Piece.KING)) {
+                    result += "K";
+                } else if (board[i][j].equals(Piece.QUEEN)) {
+                    result += "Q";
+                } else if (board[i][j].equals(Piece.BISHOP)) {
+                    result += "B";
+                } else if (board[i][j].equals(Piece.KNIGHT)) {
+                    result += "N";
+                } else if (board[i][j].equals(Piece.ROOK)) {
+                    result += "R";
+                } else if (board[i][j].equals(Piece.PAWN)) {
+                    result += "P";
+                } else { // EMPTY
+                    result += "-";
+                }
+                if (j == 3) {
+                    result += "\n";
+                } else {
+                    result += " ";
+                }
+            }
+        }
         return result;
     }
 
