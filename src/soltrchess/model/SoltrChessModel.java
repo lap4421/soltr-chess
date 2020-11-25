@@ -1,8 +1,6 @@
 package soltrchess.model;
 
-import soltrchess.SoltrChess;
 import soltrchess.backtracking.Configuration;
-import soltrchess.gui.SoltrChessGUI;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -178,16 +176,6 @@ public class SoltrChessModel implements Configuration {
 
 
 
-    /**
-     *
-     * @param row1
-     * @param col1
-     * @param row2
-     * @param col2
-     * @param piece1
-     * @param piece2
-     * @return
-     */
 
 
     public boolean isValid(int row1, int col1, int row2, int col2, Piece piece1, Piece piece2) {
@@ -196,23 +184,92 @@ public class SoltrChessModel implements Configuration {
             return valid;
         }
 
-        // this is supposed to be so that you can't move to the same square, right?
+        // this is supposed to be so that you can't move to the same square, right >> yes
         if (row1 == row2 && col1 == col2) {
             return valid;
         }
 
         if (piece1.equals(Piece.KING)) {
+            //System.out.println("Checking for king");
             if (Math.abs(row2 - row1) <= 1 && Math.abs(col2 - col1) <= 1) {
                 valid = true;
             }
         }
         else if (piece1.equals(Piece.QUEEN)) {
+            //System.out.println("Checking for queen");
             if (row1 != row2 && col1 == col2 || row1 == row2 && col1 != col2 || Math.abs(row2 - row1) == Math.abs(col2 - col1)) {
-                // TODO --> need to check the queen for jumping over anybody too
                 valid = true;
             }
+            //if she be moving straight, not diagonally
+            if (row1 == row2 || col1 == col2) {
+                if (col1 == col2 && Math.abs(row2 - row1) > 1) { // vert
+                    for (int i = Math.min(row1, row2) + 1; i < Math.max(row1, row2); i++) {
+                        if (!(board[i][col1].equals(Piece.EMPTY))) {
+                            valid = false;
+                            return valid;
+                        }
+                    }
+                } else if (row1 == row2 && Math.abs(col2 - col1) > 1) { // horizontal
+                    for (int j = Math.min(col1, col2) + 1; j < Math.max(col1, col2); j++) {
+                        if (!(board[row1][j].equals(Piece.EMPTY))) {
+                            valid = false;
+                            return valid;
+                        }
+                    }
+                }
+                valid = true; // default state if neither of above two loops returns false
+
+            } else {
+                if (row2 > row1 && col2 > col1) {
+                    //System.out.println("dick prime");
+                    for (int i = row1 + 1; i < row2; i++) {
+                        if (board[i][col1 + (i - row1)] != Piece.EMPTY) {
+                            //System.out.println("DICK" + i);
+                            return false;
+
+                        }
+
+                    }
+                }
+                if (row2 < row1 && col2 > col1) {
+                    //System.out.println("cock prime");
+                    for (int i = row1 - 1; i > row2; i--) {
+                        if (board[i][col1 + (row1 - i)] != Piece.EMPTY) {
+                            //System.out.println("coCK" + i);
+                            return false;
+
+                        }
+
+                    }
+                }
+                if (row2 > row1 && col2 < col1) {
+                    //System.out.println("cum prime");
+                    for (int i = row1 + 1; i < row2; i++) {
+                        if (board[i][col1 - (i - row1)] != Piece.EMPTY) {
+                            //System.out.println("CUMMM" + i);
+                            return false;
+
+                        }
+
+                    }
+                }
+                if (row2 < row1 && col2 < col1) {
+                    //System.out.println("puss prime");
+                    for (int i = row1 - 1; i > row2; i--) {
+                        if (board[i][col1 - (row1 - i)] != Piece.EMPTY) {
+                            //System.out.println("PUSS" + i);
+                            return false;
+
+                        }
+
+                    }
+                }
+                valid = true;
+            }
+
         }
         else if (piece1.equals(Piece.ROOK)) {
+            //System.out.println("Checking for rook");
             if (row1 != row2 && col1 == col2 || row1 == row2 && col1 != col2) {
                 // now right here, we need to make sure he isn't jumping over anybody
                 // There might be a more efficient way to do this, but it's 12:25 AM and I am kinda lazy right now
@@ -237,14 +294,57 @@ public class SoltrChessModel implements Configuration {
             }
         }
         else if (piece1.equals(Piece.BISHOP)) {
+            //System.out.println("Checking for bishop");
             if (Math.abs(row2 - row1) == Math.abs(col2 - col1)) {
-                // check if the bishop is jumping over anybody
-                // distinguish between "upward" and "downward" diagonal
-                // TODO --> fix the bishop
+                if (row2 > row1 && col2 > col1) {
+                    //System.out.println("dick prime");
+                    for (int i = row1 + 1; i < row2; i++) {
+                        if (board[i][col1 + (i - row1)] != Piece.EMPTY) {
+                            //System.out.println("DICK" + i);
+                            return false;
+
+                        }
+
+                    }
+                }
+                if (row2 < row1 && col2 > col1) {
+                    //System.out.println("cock prime");
+                    for (int i = row1 - 1; i > row2; i--) {
+                        if (board[i][col1 + (row1 - i)] != Piece.EMPTY) {
+                            //System.out.println("coCK" + i);
+                            return false;
+
+                        }
+
+                    }
+                }
+                if (row2 > row1 && col2 < col1) {
+                    //System.out.println("cum prime");
+                    for (int i = row1 + 1; i < row2; i++) {
+                        if (board[i][col1 - (i - row1)] != Piece.EMPTY) {
+                            //System.out.println("CUMMM" + i);
+                            return false;
+
+                        }
+
+                    }
+                }
+                if (row2 < row1 && col2 < col1) {
+                    //System.out.println("puss prime");
+                    for (int i = row1 - 1; i > row2; i--) {
+                        if (board[i][col1 - (row1 - i)] != Piece.EMPTY) {
+                            //System.out.println("PUSS" + i);
+                            return false;
+
+                        }
+
+                    }
+                }
                 valid = true;
             }
         }
         else if (piece1.equals(Piece.KNIGHT)) {
+            //System.out.println("Checking for knight");
             int rowdif = Math.abs(row2 - row1);
             int coldif = Math.abs(col2 - col1);
             if (coldif == 2 && rowdif == 1 || coldif == 1 && rowdif == 2) {
@@ -252,12 +352,13 @@ public class SoltrChessModel implements Configuration {
             }
         }
         else if (piece1.equals(Piece.PAWN)) {
+            //System.out.println("Checking for pawn");
             if (row2 == (row1 - 1) && Math.abs(col2 - col1) == 1) {
                 valid = true;
             }
         }
         else {
-            System.out.println("Returning default, should be empty");
+            //System.out.println("Returning default, should be empty");
         }
         return valid;
     }
@@ -312,6 +413,7 @@ public class SoltrChessModel implements Configuration {
         }
     }
 
+
     @Override
     public String toString() {
         String result = "";
@@ -341,6 +443,7 @@ public class SoltrChessModel implements Configuration {
         }
         return result;
     }
+
 
 
 }

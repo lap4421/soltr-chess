@@ -8,28 +8,21 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
-import javafx.stage.Stage;
 import javafx.stage.FileChooser;
-import soltrchess.model.SoltrChessModel;
+import javafx.stage.Stage;
 import soltrchess.model.Observer;
+import soltrchess.model.SoltrChessModel;
 
-import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-
-
-import static java.awt.Color.BLUE;
 
 /**
- * OVERALL THINGS LEFT TO DO --> #1 is by far the most important
- * 1) Fix bishop and queen logic in SoltrChessModel.isValid() so that they can't jump over pieces
- * 2) Minor aesthetic fixes: show gridlines on gridPane board
- * 3) Get rid of all debugging System.out.println() statements
- * 4) Maaaaybe change the illegal move message so it doesn't swear at the user
+ * The GUI. It's very gooey.
+ *
+ * Github was kinda broken, so I couldn't commit the finished version.
+ * @author Lev Paciorkowski
+ * @author Lizzy Javor
  */
 
 
@@ -46,7 +39,7 @@ public class SoltrChessGUI extends Application implements Observer<SoltrChessMod
     private boolean color = false;
     private int firstrow;
     private int firstcol;
-    private Button firstbutton;
+    private Square firstbutton;
     private Boolean[][] ColorArray;
     private boolean setupfinished = false;
 
@@ -80,32 +73,18 @@ public class SoltrChessGUI extends Application implements Observer<SoltrChessMod
 
 
     // don't think this is needed
-    public void buildBoard() {
-        for (int row = 0; row < DIM; ++row) {
-            for (int col = 0; col < DIM; ++col) {
 
-            }
-        }
-    }
 
     /**
-     * 11/21/2020 22:31 -- there is some bug going on here that I haven't been able to figure out
-     * If you do a new game WITHOUT making a single move, then everything is fine
-     * But, if you do a new game after making any moves, then all EMPTY DARK squares are colored light in the new
-     * game board
-     * For some reason, this bug doesn't happen if you capture FROM a dark square TO a light square on any board...
-     * If that is your most recently played move, then when you do new game everything is fine and dandy
-     * @param row
-     * @param col
-     * @param button
+     * Updates a single square on the board to match which piece is now on it in the 2D piece array
+     *
+     * @param row    the row where the piece is
+     * @param col    the column where the piece is
+     * @param button the square to be updated
      */
 
-    public void updateSquare(int row, int col, Button button) {
+    public void updateSquare(int row, int col, Square button) {
         SoltrChessModel.Piece piece = model.getBoard()[row][col];
-        System.out.println(piece);
-        System.out.println("Color: " + color);
-        System.out.println("Setup finished: " + setupfinished);
-        System.out.println("Color Array stuff: " + firstrow + ", " + firstcol + ", " + ColorArray[firstrow][firstcol]);
         if (piece.equals(SoltrChessModel.Piece.PAWN)) {
             button.setGraphic(new ImageView(pawn));
         } else if (piece.equals(SoltrChessModel.Piece.ROOK)) {
@@ -118,16 +97,17 @@ public class SoltrChessGUI extends Application implements Observer<SoltrChessMod
             button.setGraphic(new ImageView(queen));
         } else if (piece.equals(SoltrChessModel.Piece.KNIGHT)) {
             button.setGraphic(new ImageView(knight));
-        } else if (color &&!setupfinished||ColorArray[firstrow][firstcol]) {
+        } else if (button.getColor()) {
             button.setGraphic(new ImageView(light));
-        } else if (!color &&!setupfinished|| !ColorArray[firstrow][firstcol]){
+        } else if (!button.getColor()) {
             button.setGraphic(new ImageView(dark));
         }
     }
 
 
-
-
+    /**
+     * The class Square represents a single square on the board. It extends button so that it can be clicked to make moves.
+     */
     private class Square extends Button {
         private boolean color;
 
@@ -140,8 +120,11 @@ public class SoltrChessGUI extends Application implements Observer<SoltrChessMod
         private Background bb = new Background(BLUE);
 
 
-
-
+        /**
+         * The Square constructor - makes a square with its correct color background.
+         *
+         * @param color a boolean, with true meaning light and false being dark
+         */
         public Square(boolean color) {
             this.color = color;
             if (color) {
@@ -151,15 +134,31 @@ public class SoltrChessGUI extends Application implements Observer<SoltrChessMod
                 this.setBackground(bb);
             }
         }
+
+        /**
+         * Returns the color of the square
+         *
+         * @return true if light and false if dark
+         */
+        public boolean getColor() {
+            return color;
+        }
     }
 
-    public void click(int row, int col, Button button){
+    /**
+     * The actions performed when a button is clicked - first, designates the square with the piece to be moved, then,
+     * on the next click, designates where to move that piece.
+     *
+     * @param row    the row of the square being clicked
+     * @param col    the column of the square being clicked
+     * @param button the square being clicked
+     */
+    public void click(int row, int col, Square button) {
         if (firstclick) {
             firstrow = row;
             firstcol = col;
             firstbutton = button;
-        }
-        else{
+        } else {
             if (model.isValid(firstrow, firstcol, row, col, model.getBoard()[firstrow][firstcol], model.getBoard()[row][col])) {
                 updaterowcol(row, col);
                 update(model);
@@ -177,14 +176,13 @@ public class SoltrChessGUI extends Application implements Observer<SoltrChessMod
 
 
     public void illegalMove() {
-        status = "Moves: " + (int) model.getMoves() + "\tYou can't fucking do that you absolute buffoon";
+        status = "Moves: " + (int) model.getMoves() + "\tYou can't do that you absolute buffoon";
         borderPane.setBottom(new Text(status));
     }
 
 
     @Override
     public void update(SoltrChessModel soltrChessModel) {
-        //model.boardtoString();
         model.setBoard(firstrow, firstcol, SoltrChessModel.Piece.EMPTY);
         status = "Moves: " + (int) model.getMoves();
         if (model.hasWonGame()) {
@@ -208,9 +206,6 @@ public class SoltrChessGUI extends Application implements Observer<SoltrChessMod
             for (int col = 0; col < DIM; ++col) {
                 Square square;
                 square = new Square(color);
-                //ColorArray[row][col] = color;
-                //System.out.println("Added color: " + color + " to ColorArray[" + row + "][" + col + "]");
-
 
                 updateSquare(row, col, square);
                 int finalRow = row;
@@ -231,28 +226,38 @@ public class SoltrChessGUI extends Application implements Observer<SoltrChessMod
 
     }
 
+    /**
+     * Sets up the board for a new game
+     * @param filename the name of the file containing the name
+     * @throws FileNotFoundException if the filename is entered wrong
+     */
     public void startNewgame(String filename) throws FileNotFoundException {
         // to fix a weird bug, we need to "click" any dark square --> I choose (0, 0)
-        click(0, 0, (Button) board.getChildren().get(0));
+        click(0, 0, (Square) board.getChildren().get(0));
         fileName = filename;
         borderPane.setTop(new Text("Game File: " + fileName));
         String[] args = new String[1];
         args[0] = filename;
         model = new SoltrChessModel(args);
-        System.out.println("Changed model to new game");
+        //System.out.println("Changed model to new game");
         this.model.addObserver(this);
-        System.out.println("Added observer to model again");
-        System.out.println("About to re-make the gridpane...");
-        System.out.println("Using file: " + filename);
+        //System.out.println("Added observer to model again");
+        //System.out.println("About to re-make the gridpane...");
+        //System.out.println("Using file: " + filename);
         color = false;
         setupfinished = false;
         firstclick = true;
         GridPane newBoard = makeGridPane();
         borderPane.setCenter(newBoard);
-        System.out.println("Gridpane done");
+        //System.out.println("Gridpane done");
         status = "Moves: " + (int) model.getMoves();
         borderPane.setBottom(new Text(status));
     }
+
+    /**
+     * Gets parameters.
+     * @throws FileNotFoundException if the name of the file is entered wrong
+     */
 
     @Override
     public void init() throws FileNotFoundException {
@@ -265,9 +270,7 @@ public class SoltrChessGUI extends Application implements Observer<SoltrChessMod
         //String[] args = new String[1];
         //args[0] = "data/game43.txt";
 
-        /**
-         * Need to generate the ColorArray only once, so doing it here instead of the GridPane maker
-         */
+        //Need to generate the ColorArray only once, so doing it here instead of the GridPane maker
         ColorArray = new Boolean[4][4];
         for (int i = 0; i < DIM; i++) {
             for (int j = 0; j < DIM; j++) {
@@ -283,9 +286,15 @@ public class SoltrChessGUI extends Application implements Observer<SoltrChessMod
         model = new SoltrChessModel(args);
         System.out.println("Instantiated model");
         this.model.addObserver(this);
-        System.out.println("Added observer");
-        System.out.println("The parameters are: " + params);
+        //System.out.println("Added observer");
+        //System.out.println("The parameters are: " + params);
     }
+
+    /**
+     * Sets up the game, including the file chooser and game restart functionality.
+     * @param stage
+     * @throws Exception
+     */
 
 
     @Override
@@ -320,9 +329,9 @@ public class SoltrChessGUI extends Application implements Observer<SoltrChessMod
 
 
         // This is where we actually set up the board
-        System.out.println("Setting up the board now...");
+        //System.out.println("Setting up the board now...");
         board = makeGridPane();
-        System.out.println("Board setup complete");
+        //System.out.println("Board setup complete");
         //System.out.println("ColorArray contents");
         //for (int i = 0; i < DIM; i++) {
         //    for (int j = 0; j < DIM; j++) {

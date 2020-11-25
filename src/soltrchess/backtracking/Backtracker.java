@@ -16,6 +16,7 @@ import java.util.Optional;
  * 
  * @author sps (Sean Strout @ RIT CS)
  * @author jeh (James Heliotis @ RIT CS)
+ *
  */
 public class Backtracker {
     
@@ -27,24 +28,18 @@ public class Backtracker {
      */
     public Optional<Configuration> solve(Configuration config) {
         if (config.isGoal()) {
-            System.out.println("Returned basic sol");
             return Optional.of(config);
         } else {
             for (Configuration child : config.getSuccessors()) {
-                System.out.println("Current config: ");
-                System.out.println(child);
                 if (child.isValid()) {
-                    System.out.println("Child is valid");
                     Optional<Configuration> sol = solve(child);
                     if (sol.isPresent()) {
-                        System.out.println("SOLUTION FOUND!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
                         return sol;
                     }
                 }
             }
             // implicit solitarechess.backtracking happens here
-        }
-        System.out.println("Solution not found :(");
+        } 
         return Optional.empty();
     }
 
