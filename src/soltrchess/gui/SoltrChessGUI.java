@@ -72,7 +72,6 @@ public class SoltrChessGUI extends Application implements Observer<SoltrChessMod
     private final static int DIM = 4;
 
 
-    // TODO --> need to make this compatible with model code
     public SoltrChessGUI() {
         System.out.println("Instantiating GUI");
     }

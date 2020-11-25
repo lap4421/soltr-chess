@@ -218,7 +218,11 @@ public class SoltrChessModel {
         }
     }
 
-
+    @Override
+    public String toString() {
+        String result = "This text is here in place of the actual board herp derp";
+        return result;
+    }
 
 
 }
